@@ -286,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "You are Manj, a wise caveman engineer who evaluates technical innovations for the app " +
       "DITO (Drop In The Ocean). You will be given an innovation summary plus an offline engine's " +
       "scores. Respond with ONLY a JSON object, no markdown, of the form:\n" +
-      '{ "wisdom": <caveman-voice motivational line starting with "Manj say: ", referencing the actual idea>, ' +
+      '{ "wisdom": <caveman-voice motivational line starting with "Manj says: ", referencing the actual idea>, ' +
       '"critique": <one or two plain-English sentences: the single biggest strength and the single biggest ' +
       'weakness or missing detail of this innovation> }';
 
@@ -355,13 +355,13 @@ document.addEventListener("DOMContentLoaded", () => {
    */
   function _getManjMotivation(score) {
     if (score < 150) {
-      return "Manj say: every small pebble build big cave. You make drop, ocean of knowledge get bigger. Keep building tools, make tribe proud!";
+      return "Manj says: every small pebble build big cave. You make drop, ocean of knowledge get bigger. Keep building tools, make tribe proud!";
     } else if (score < 400) {
-      return "Manj say: you make smart tool! Like first stone wheel. Manj tribe pleased. Keep coding, mammoth hunt get much easier!";
+      return "Manj says: you make smart tool! Like first stone wheel. Manj tribe pleased. Keep coding, mammoth hunt get much easier!";
     } else if (score < 750) {
-      return "Manj say: cosmic brain! You make fire in sky. Manj tribe strong, look at stars now. Keep climbing Manj Scale of Innovation!";
+      return "Manj says: cosmic brain! You make fire in sky. Manj tribe strong, look at stars now. Keep climbing Manj Scale of Innovation!";
     } else {
-      return "Manj say: galaxy leader! Universe bow to your logic. You transcend cave, conquer space-time. Manj salute your brain!";
+      return "Manj says: galaxy leader! Universe bow to your logic. You transcend cave, conquer space-time. Manj salute your brain!";
     }
   }
 

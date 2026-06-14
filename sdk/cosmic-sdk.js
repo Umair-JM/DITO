@@ -31212,10 +31212,14 @@ class CosmicSDK {
    * several anchor points at once (stone axe, wheel, transistor, today's AI).
    */
   _placeOnCivScale(score) {
-    // Deliberately humbling curve: a single innovation is a *drop in the ocean*.
-    // Most submissions land between Fire and Writing; only the wildly specific,
-    // ambitious and feasible ones approach the Transistor.
-    const civIndex = 2 + Math.pow(score / 1000, 1.5) * 70;
+    // Map the 0..1000 score across the WHOLE timeline (index 1..160). The curve
+    // is tuned so weak/vague ideas sit in pre-history (stone -> agriculture),
+    // solid modern innovations land around the transistor/web era, genuinely
+    // advanced concepts reach Generative AI and beyond, and only a near-perfect
+    // score approaches the projected Dyson-swarm frontier. (Exponent > 1 keeps
+    // junk low; reaching 159 at score 1000 keeps the modern/future end usable —
+    // previously even a perfect score never got past ~1969.)
+    const civIndex = 1 + Math.pow(score / 1000, 1.25) * 159;
     const ms = this.milestones;
 
     let below = ms[0];
@@ -31255,18 +31259,18 @@ class CosmicSDK {
     }[weakest[0]] || "Keep carving.";
 
     if (axes.coherence < 0.45) {
-      return "Manj say: this look like pile of shiny words, not real tool. Talk like builder, not like parrot. Then Manj believe you.";
+      return "Manj says: this look like pile of shiny words, not real tool. Talk like builder, not like parrot. Then Manj believe you.";
     }
     if (score < 150) {
-      return `Manj say: small pebble, but ocean need pebbles. Your drop sit near ${scale.below.name}. ${hint}`;
+      return `Manj says: small pebble, but ocean need pebbles. Your drop sit near ${scale.below.name}. ${hint}`;
     }
     if (score < 400) {
-      return `Manj say: real tool! Touch ${topField}. You stand past ${scale.below.name}, climb toward ${scale.above.name}. ${hint}`;
+      return `Manj says: real tool! Touch ${topField}. You stand past ${scale.below.name}, climb toward ${scale.above.name}. ${hint}`;
     }
     if (score < 750) {
-      return `Manj say: big fire in sky! Your ${topField} idea sit between ${scale.below.name} and ${scale.above.name}. Tribe see far now. ${hint}`;
+      return `Manj says: big fire in sky! Your ${topField} idea sit between ${scale.below.name} and ${scale.above.name}. Tribe see far now. ${hint}`;
     }
-    return `Manj say: galaxy thinking! This rival ${scale.below.name} itself. Universe lean closer to listen. Keep carving the stars.`;
+    return `Manj says: galaxy thinking! This rival ${scale.below.name} itself. Universe lean closer to listen. Keep carving the stars.`;
   }
 
   /**
