@@ -186,7 +186,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /**
-   * Main submit logic (supporting asynchronous Gemini LLM fetch)
+   * Main submit logic. The offline engine always runs locally; an optional
+   * free, keyless public-AI boost may enrich the wording when enabled.
    */
   async function _handleEvaluation() {
     const text = summaryInput.value;

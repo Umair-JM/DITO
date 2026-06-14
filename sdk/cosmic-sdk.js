@@ -31234,8 +31234,8 @@ class CosmicSDK {
 
     return {
       civIndex: parseFloat(civIndex.toFixed(1)),
-      below: { name: below.name, when: below.when, index: below.index },
-      above: { name: above.name, when: above.when, index: above.index },
+      below: { name: below.name, when: below.when, index: below.index, blurb: below.blurb },
+      above: { name: above.name, when: above.when, index: above.index, blurb: above.blurb },
       anchors: {
         stone:      fmt(civIndex / by("stone")),
         wheel:      fmt(civIndex / by("wheel")),
@@ -31245,32 +31245,50 @@ class CosmicSDK {
     };
   }
 
-  /** Caveman-voice feedback that actually references where the idea landed. */
+  /**
+   * Manj's cave wisdom — warm, genuine, and grounded in real history. Every
+   * message: (1) acknowledges the person's effort with empathy, (2) ties their
+   * idea to the actual human milestone it landed nearest (with a touch of that
+   * milestone's story), and (3) leaves them with honest, encouraging direction.
+   */
   _composeManj(score, scale, axes, matchedDomains) {
     const topField = matchedDomains[0] ? matchedDomains[0].name : "new ground";
+    const near = scale.below;     // the milestone the idea stands beside
+    const next = scale.above;     // the one it reaches toward
+    // A short, plain retelling of why the nearby milestone mattered — reshaped
+    // to flow naturally inside a sentence (each clause lowercased, joined by —).
+    const story = (near.blurb || "a turning point for our kind")
+      .replace(/\.$/, "")
+      .split(/\. /)
+      .map(s => s.charAt(0).toLowerCase() + s.slice(1))
+      .join(" — ");
+
+    // Gentle, specific guidance based on the weakest axis (never scolding).
     const weakest = Object.entries(axes.pct)
       .filter(([k]) => k !== "coherence")
       .sort((a, b) => a[1] - b[1])[0];
-    const hint = {
-      specificity: "Manj need more real detail — name materials, numbers, method.",
-      depth: "Go deeper in one thing, not shallow in many.",
-      breadth: "Touch more fields — borrow fire from other tribes.",
-      novelty: "Reach for bigger idea — stars, atoms, life itself."
-    }[weakest[0]] || "Keep carving.";
+    const nudge = {
+      specificity: "If you tell Manj the real details — the materials, the numbers, the how — your drop grow heavier.",
+      depth: "Pick one part and dig deep, like Manj dig for the sharpest flint. Mastery of one beats a touch of many.",
+      breadth: "Reach a hand to other tribes — borrow from other fields, and your idea grow wider.",
+      novelty: "Do not fear the bold dream — the stars, the atom, the spark of life. Big questions carry far."
+    }[weakest[0]] || "Keep carving — the ocean remembers every drop.";
 
+    // Buzzword salad — kind but honest: invite them to speak as a real builder.
     if (axes.coherence < 0.45) {
-      return "Manj says: this look like pile of shiny words, not real tool. Talk like builder, not like parrot. Then Manj believe you.";
+      return "Manj says: Manj see shiny words here, but not yet the tool beneath them. No shame — every builder start rough. Tell Manj what it really does, in your own plain voice, and Manj will see your true work.";
     }
+
     if (score < 150) {
-      return `Manj says: small pebble, but ocean need pebbles. Your drop sit near ${scale.below.name}. ${hint}`;
+      return `Manj says: friend, Manj honour this. Even the smallest pebble feeds the great ocean of knowledge, and your drop rests beside ${near.name} (${near.when}) — ${story}. Proud company for a first step. ${nudge}`;
     }
     if (score < 400) {
-      return `Manj says: real tool! Touch ${topField}. You stand past ${scale.below.name}, climb toward ${scale.above.name}. ${hint}`;
+      return `Manj says: this is a real tool, and Manj is glad you made it. Your work in ${topField} stands just past ${near.name} (${near.when}) — ${story} — and already reaches toward ${next.name}. You walk a good path, friend. ${nudge}`;
     }
     if (score < 750) {
-      return `Manj says: big fire in sky! Your ${topField} idea sit between ${scale.below.name} and ${scale.above.name}. Tribe see far now. ${hint}`;
+      return `Manj says: big fire in the sky, friend! Your ${topField} idea takes its place between ${near.name} and ${next.name}. Remember ${near.name} — ${story}. The tribe sees farther because minds like yours keep building. ${nudge}`;
     }
-    return `Manj says: galaxy thinking! This rival ${scale.below.name} itself. Universe lean closer to listen. Keep carving the stars.`;
+    return `Manj says: Manj is moved. This stands shoulder to shoulder with ${near.name} — ${story} — and leans toward ${next.name}, where few dare to climb. The whole ocean rises for a drop like this. Carry it onward, and never stop carving the stars.`;
   }
 
   /**
