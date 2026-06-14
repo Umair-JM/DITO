@@ -30849,9 +30849,9 @@ class CosmicSDK {
       { phrases: ["quantum computer", "quantum computing", "quantum processor", "quantum supremacy"],
         label: "Quantum Computing", disciplines: { PHYSICS: 0.5, COMPUTER: 0.4, MATH: 0.1 },
         terms: ["quantum", "qubit", "entanglement", "superposition", "decoherence", "algorithm"], weight: 8, frontier: true },
-      { phrases: ["artificial intelligence", "machine learning", "neural network", "deep learning", "large language model", "generative ai", "transformer model"],
+      { phrases: ["artificial intelligence", "machine learning", "neural network", "deep learning", "large language model", "generative ai", "transformer model", "autonomous agent", "ai agent", "research agent", "autonomous research", "reinforcement learning", "self-improving"],
         label: "Artificial Intelligence & Machine Learning", disciplines: { COMPUTER: 0.8, MATH: 0.15, ENGINEERING: 0.05 },
-        terms: ["neural", "network", "algorithm", "training", "inference", "model"], weight: 7, frontier: true },
+        terms: ["neural", "network", "algorithm", "training", "inference", "model", "autonomous"], weight: 7, frontier: true },
       { phrases: ["blockchain", "cryptocurrency", "smart contract", "distributed ledger"],
         label: "Cryptography & Distributed Systems", disciplines: { COMPUTER: 0.8, MATH: 0.15, SOCIAL: 0.05 },
         terms: ["cryptography", "cryptographic", "hash", "consensus", "ledger", "network"], weight: 5, frontier: false },
@@ -30877,18 +30877,27 @@ class CosmicSDK {
       { phrases: ["rocket", "spacecraft", "satellite", "space elevator", "ion thruster", "reusable launch", "mars rover"],
         label: "Aerospace & Propulsion Engineering", disciplines: { ENGINEERING: 0.6, PHYSICS: 0.3, EARTH: 0.1 },
         terms: ["propulsion", "thrust", "orbital", "aerodynamic", "structural"], weight: 7, frontier: true },
-      { phrases: ["robot", "robotics", "humanoid robot", "drone", "autonomous vehicle", "self-driving"],
+      { phrases: ["robot", "robotics", "humanoid robot", "drone", "autonomous vehicle", "self-driving", "exoskeleton", "tactile-feedback"],
         label: "Robotics & Autonomous Systems", disciplines: { ENGINEERING: 0.5, COMPUTER: 0.4, MATH: 0.1 },
         terms: ["actuator", "sensor", "control", "autonomous", "kinematics"], weight: 6, frontier: false },
+      { phrases: ["superconductor", "room-temperature superconductor", "room temperature superconductor", "superconducting", "lossless power", "zero resistance"],
+        label: "Superconductivity & Quantum Materials", disciplines: { PHYSICS: 0.55, ENGINEERING: 0.3, CHEMISTRY: 0.15 },
+        terms: ["superconducting", "quantum", "magnetic", "resistance", "cryogenic", "material"], weight: 8, frontier: true },
+      { phrases: ["self-replicating", "self replicating", "von neumann", "lunar factory", "asteroid mining", "lunar mining", "in-situ resource", "regolith", "molecular assembler", "self-assembling"],
+        label: "Self-Replicating & Space Megastructures", disciplines: { ENGINEERING: 0.45, PHYSICS: 0.25, COMPUTER: 0.2, EARTH: 0.1 },
+        terms: ["autonomous", "robotic", "orbital", "manufacturing", "replication", "stellar"], weight: 10, frontier: true },
+      { phrases: ["space-based solar", "space solar power", "orbital solar", "power satellite", "solar-power satellite", "solar power satellite", "energy beaming", "power beaming"],
+        label: "Space-Based Solar Power", disciplines: { ENGINEERING: 0.5, PHYSICS: 0.3, EARTH: 0.2 },
+        terms: ["orbital", "solar", "microwave", "energy", "satellite", "transmission"], weight: 9, frontier: true },
       { phrases: ["graphene", "nanotube", "nanomaterial", "metamaterial", "nanotechnology", "nanoscale", "diamondoid"],
         label: "Nanomaterials & Advanced Materials", disciplines: { CHEMISTRY: 0.4, PHYSICS: 0.35, ENGINEERING: 0.25 },
         terms: ["nanoscale", "lattice", "carbon", "molecular", "structural", "tensile"], weight: 7, frontier: true },
       { phrases: ["solar panel", "solar cell", "photovoltaic", "perovskite", "battery", "energy storage", "supercapacitor", "fuel cell"],
         label: "Energy Storage & Conversion", disciplines: { ENGINEERING: 0.45, CHEMISTRY: 0.4, PHYSICS: 0.15 },
         terms: ["electrochemical", "electrode", "voltage", "efficiency", "photovoltaic", "energy"], weight: 5, frontier: false },
-      { phrases: ["carbon capture", "carbon-capture", "climate", "geoengineering", "desalination", "renewable energy"],
+      { phrases: ["carbon capture", "carbon-capture", "direct air capture", "direct-air capture", "calcium looping", "calcium-looping", "climate", "geoengineering", "desalination", "renewable energy"],
         label: "Climate & Earth-Systems Engineering", disciplines: { EARTH: 0.5, ENGINEERING: 0.35, CHEMISTRY: 0.15 },
-        terms: ["atmospheric", "carbon", "emissions", "climate", "environmental"], weight: 6, frontier: false },
+        terms: ["atmospheric", "carbon", "emissions", "climate", "environmental"], weight: 7, frontier: true },
 
       // --- Math / social / humanities ---
       { phrases: ["cryptography", "encryption", "cybersecurity", "zero knowledge", "post-quantum"],
@@ -30913,12 +30922,14 @@ class CosmicSDK {
     const disciplineBoost = {};
     const conceptTerms = new Set();
     let frontierHits = 0;
+    let peakWeight = 0;          // weight of the single most advanced concept found
 
     this.concepts.forEach(concept => {
       const hit = concept.phrases.some(p => this._phraseInText(p, lowerText));
       if (!hit) return;
 
       if (concept.frontier) frontierHits++;
+      if (concept.weight > peakWeight) peakWeight = concept.weight;
       (concept.terms || []).forEach(t => conceptTerms.add(t.toLowerCase()));
 
       // Pick the dominant discipline for the surfaced tag.
@@ -30943,7 +30954,7 @@ class CosmicSDK {
       });
     });
 
-    return { injectedDomains, disciplineBoost, conceptTerms, frontierHits };
+    return { injectedDomains, disciplineBoost, conceptTerms, frontierHits, conceptPeak: peakWeight / 10 };
   }
 
   /**
@@ -31078,11 +31089,16 @@ class CosmicSDK {
 
     // Composite quality, then multiply by coherence so keyword-salad is
     // structurally incapable of scoring high no matter how many terms it spams.
-    const quality =
+    const baseQuality =
       0.30 * axes.specificity +
       0.27 * axes.depth +
       0.18 * axes.breadth +
       0.25 * axes.novelty;
+    // A recognised, genuinely advanced concept (e.g. a room-temperature
+    // superconductor or a self-replicating space factory) is strong evidence of
+    // real ambition. It LIFTS the score toward the ceiling but can never lower
+    // it — so inputs whose concept simply isn't in the lexicon aren't punished.
+    const quality = baseQuality + Math.pow(concept.conceptPeak, 1.4) * 0.30 * (1 - baseQuality);
     // Coherence is applied as a SQUARED gate: prose with structure barely loses
     // anything, while a buzzword-spray (low diversity + no function words) gets
     // crushed even if it matches every frontier term in the book.
@@ -31169,12 +31185,13 @@ class CosmicSDK {
     const activeDisciplines = Object.values(disciplineScores).filter(v => v >= 2.5).length;
     const breadth = Math.min(1, activeDisciplines / 5);
 
-    // Novelty: presence of frontier / ambition-signalling concepts, counting
-    // both raw frontier terms and recognised frontier CONCEPTS (e.g. a
-    // "time travel" idea is ambitious even with no frontier buzzwords typed).
-    let frontierHits = conceptFrontier;
-    tokenSet.forEach(t => { if (this.frontierTerms.has(t)) frontierHits++; });
-    const novelty = Math.min(1, frontierHits / 5);
+    // Novelty: reach toward the frontier. A recognised frontier CONCEPT is a
+    // strong signal (a single "room-temperature superconductor" is ambitious on
+    // its own), so concepts count more than loose buzzwords, and the scale is
+    // tuned so 2-3 genuine frontier signals approach the ceiling.
+    let termFrontier = 0;
+    tokenSet.forEach(t => { if (this.frontierTerms.has(t)) termFrontier++; });
+    const novelty = Math.min(1, (conceptFrontier * 1.0 + termFrontier * 0.5) / 3.5);
 
     // Coherence (anti-keyword-stuffing): real writing has lexical variety AND
     // connective function words. A comma-spray of buzzwords has neither, so
