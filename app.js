@@ -139,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </svg>
       </div>
       <div class="water-stats" style="position:absolute; top:8px; left:12px; font-family:var(--font-mono); font-size:0.75rem; font-weight:bold; z-index:15;">
-        DITO DROPS (Drop In The Ocean): <span id="manj-drops-counter">0</span>
+        DITO DROPS (Drops in the Ocean of Knowledge): <span id="manj-drops-counter">0</span>
       </div>
     `;
 

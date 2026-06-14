@@ -30797,15 +30797,153 @@ class CosmicSDK {
     ]);
 
     // Common function words — their density signals real prose vs. keyword salad.
+    // Includes the very common short words (a/an/of/to/in/by/is/it...) — without
+    // them, genuine short sentences were wrongly scored as incoherent.
     this.functionWords = new Set([
+      "a","an","of","to","in","on","at","is","it","as","be","or","by","we","you","i",
+      "so","if","do","up","my","no","he","she","his","her","them","an",
       "the","and","with","that","this","for","are","was","using","which","into","from",
       "can","has","have","will","our","your","more","than","based","while","when","where",
       "such","both","also","then","they","their","its","but","not","each","over","under",
       "between","through","across","because","therefore","however","via","onto","upon"
     ]);
 
+    // ------------------------------------------------------------------
+    // CONCEPT LEXICON — the small, local, compute-efficient "understanding"
+    // layer. It recognises whole CONCEPTS (multi-word ideas) rather than
+    // stray single words, so e.g. "time travel" is understood as PHYSICS
+    // (spacetime / relativity) instead of accidentally matching the word
+    // "time" against every "Real-Time" Computer-Science domain.
+    //
+    // Each concept maps to one or more disciplines (with weighted shares),
+    // a human-readable domain label to surface as a tag, related `terms`
+    // that are injected so the real domain database also lights up the
+    // correct fields, an impact `weight` (1-10), and a `frontier` flag for
+    // genuinely ambitious ideas. Tiny to ship, runs entirely on-device.
+    // ------------------------------------------------------------------
+    this.concepts = [
+      // --- Frontier physics / spacetime ---
+      { phrases: ["time travel", "time machine", "time-travel", "time traveling", "time travelling", "closed timelike", "chronology protection"],
+        label: "Spacetime, Relativity & Time Physics", disciplines: { PHYSICS: 0.65, ENGINEERING: 0.2, COMPUTER: 0.15 },
+        terms: ["spacetime", "relativity", "relativistic", "causality", "wormhole", "lorentz", "einstein", "gravitation"], weight: 9, frontier: true },
+      { phrases: ["wormhole", "warp drive", "warp field", "faster than light", "faster-than-light", "alcubierre", "hyperspace"],
+        label: "Relativistic Spacetime Engineering", disciplines: { PHYSICS: 0.7, ENGINEERING: 0.3 },
+        terms: ["spacetime", "relativity", "metric", "negative", "energy", "gravitation"], weight: 9, frontier: true },
+      { phrases: ["teleportation", "teleport", "matter transport"],
+        label: "Quantum Teleportation & State Transfer", disciplines: { PHYSICS: 0.75, COMPUTER: 0.25 },
+        terms: ["quantum", "entanglement", "superposition", "decoherence", "qubit"], weight: 8, frontier: true },
+      { phrases: ["antigravity", "anti-gravity", "gravity control", "levitation", "gravitational shielding"],
+        label: "Gravitation & Field Physics", disciplines: { PHYSICS: 0.8, ENGINEERING: 0.2 },
+        terms: ["gravitation", "field", "relativity", "spacetime"], weight: 8, frontier: true },
+      { phrases: ["antimatter", "dark matter", "dark energy", "higgs"],
+        label: "High-Energy Particle Physics", disciplines: { PHYSICS: 0.9, ENGINEERING: 0.1 },
+        terms: ["particle", "quantum", "relativistic", "collider"], weight: 8, frontier: true },
+      { phrases: ["dyson swarm", "dyson sphere", "stellar engine", "kardashev", "star lifting"],
+        label: "Stellar-Scale Megaengineering", disciplines: { PHYSICS: 0.45, ENGINEERING: 0.45, EARTH: 0.1 },
+        terms: ["stellar", "solar", "orbital", "energy", "radiation"], weight: 10, frontier: true },
+      { phrases: ["nuclear fusion", "fusion reactor", "fusion power", "tokamak", "plasma confinement", "inertial confinement"],
+        label: "Fusion Energy & Plasma Physics", disciplines: { PHYSICS: 0.55, ENGINEERING: 0.4, CHEMISTRY: 0.05 },
+        terms: ["plasma", "fusion", "magnetic", "confinement", "deuterium", "energy"], weight: 9, frontier: true },
+
+      // --- Quantum / computing ---
+      { phrases: ["quantum computer", "quantum computing", "quantum processor", "quantum supremacy"],
+        label: "Quantum Computing", disciplines: { PHYSICS: 0.5, COMPUTER: 0.4, MATH: 0.1 },
+        terms: ["quantum", "qubit", "entanglement", "superposition", "decoherence", "algorithm"], weight: 8, frontier: true },
+      { phrases: ["artificial intelligence", "machine learning", "neural network", "deep learning", "large language model", "generative ai", "transformer model"],
+        label: "Artificial Intelligence & Machine Learning", disciplines: { COMPUTER: 0.8, MATH: 0.15, ENGINEERING: 0.05 },
+        terms: ["neural", "network", "algorithm", "training", "inference", "model"], weight: 7, frontier: true },
+      { phrases: ["blockchain", "cryptocurrency", "smart contract", "distributed ledger"],
+        label: "Cryptography & Distributed Systems", disciplines: { COMPUTER: 0.8, MATH: 0.15, SOCIAL: 0.05 },
+        terms: ["cryptography", "cryptographic", "hash", "consensus", "ledger", "network"], weight: 5, frontier: false },
+      { phrases: ["laptop", "computer", "notebook computer", "smartphone", "microchip", "processor chip", "semiconductor"],
+        label: "Computing Hardware & Microelectronics", disciplines: { COMPUTER: 0.6, ENGINEERING: 0.35, PHYSICS: 0.05 },
+        terms: ["microprocessor", "transistor", "circuit", "silicon", "memory"], weight: 3, frontier: false },
+
+      // --- Bio / medical ---
+      { phrases: ["gene editing", "gene-editing", "crispr", "genome editing", "gene therapy", "synthetic biology"],
+        label: "Genetic Engineering & Synthetic Biology", disciplines: { BIOLOGY: 0.55, MEDICINE: 0.35, CHEMISTRY: 0.1 },
+        terms: ["genome", "dna", "crispr", "genetic", "protein", "cell"], weight: 8, frontier: true },
+      { phrases: ["brain computer interface", "brain-computer interface", "neural interface", "neural implant", "neuralink", "brain implant"],
+        label: "Neural Interfaces & Neuroengineering", disciplines: { MEDICINE: 0.4, COMPUTER: 0.3, ENGINEERING: 0.2, BIOLOGY: 0.1 },
+        terms: ["neural", "brain", "electrode", "signal", "cortex", "implant"], weight: 8, frontier: true },
+      { phrases: ["vaccine", "mrna", "antibody", "immunotherapy", "drug discovery"],
+        label: "Medicine & Therapeutics", disciplines: { MEDICINE: 0.6, BIOLOGY: 0.3, CHEMISTRY: 0.1 },
+        terms: ["protein", "immune", "molecular", "clinical", "cell"], weight: 6, frontier: false },
+      { phrases: ["longevity", "anti-aging", "anti aging", "life extension", "senescence"],
+        label: "Longevity & Aging Biology", disciplines: { BIOLOGY: 0.5, MEDICINE: 0.45, CHEMISTRY: 0.05 },
+        terms: ["cellular", "senescence", "genetic", "metabolic", "regeneration"], weight: 7, frontier: true },
+
+      // --- Engineering / space / materials / energy ---
+      { phrases: ["rocket", "spacecraft", "satellite", "space elevator", "ion thruster", "reusable launch", "mars rover"],
+        label: "Aerospace & Propulsion Engineering", disciplines: { ENGINEERING: 0.6, PHYSICS: 0.3, EARTH: 0.1 },
+        terms: ["propulsion", "thrust", "orbital", "aerodynamic", "structural"], weight: 7, frontier: true },
+      { phrases: ["robot", "robotics", "humanoid robot", "drone", "autonomous vehicle", "self-driving"],
+        label: "Robotics & Autonomous Systems", disciplines: { ENGINEERING: 0.5, COMPUTER: 0.4, MATH: 0.1 },
+        terms: ["actuator", "sensor", "control", "autonomous", "kinematics"], weight: 6, frontier: false },
+      { phrases: ["graphene", "nanotube", "nanomaterial", "metamaterial", "nanotechnology", "nanoscale", "diamondoid"],
+        label: "Nanomaterials & Advanced Materials", disciplines: { CHEMISTRY: 0.4, PHYSICS: 0.35, ENGINEERING: 0.25 },
+        terms: ["nanoscale", "lattice", "carbon", "molecular", "structural", "tensile"], weight: 7, frontier: true },
+      { phrases: ["solar panel", "solar cell", "photovoltaic", "perovskite", "battery", "energy storage", "supercapacitor", "fuel cell"],
+        label: "Energy Storage & Conversion", disciplines: { ENGINEERING: 0.45, CHEMISTRY: 0.4, PHYSICS: 0.15 },
+        terms: ["electrochemical", "electrode", "voltage", "efficiency", "photovoltaic", "energy"], weight: 5, frontier: false },
+      { phrases: ["carbon capture", "carbon-capture", "climate", "geoengineering", "desalination", "renewable energy"],
+        label: "Climate & Earth-Systems Engineering", disciplines: { EARTH: 0.5, ENGINEERING: 0.35, CHEMISTRY: 0.15 },
+        terms: ["atmospheric", "carbon", "emissions", "climate", "environmental"], weight: 6, frontier: false },
+
+      // --- Math / social / humanities ---
+      { phrases: ["cryptography", "encryption", "cybersecurity", "zero knowledge", "post-quantum"],
+        label: "Cryptography & Cybersecurity", disciplines: { COMPUTER: 0.6, MATH: 0.35, SOCIAL: 0.05 },
+        terms: ["cryptographic", "cipher", "key", "secure", "protocol"], weight: 5, frontier: false },
+      { phrases: ["language translation", "natural language", "universal translator", "machine translation"],
+        label: "Computational Linguistics", disciplines: { COMPUTER: 0.5, HUMANITIES: 0.3, SOCIAL: 0.2 },
+        terms: ["linguistic", "semantic", "language", "syntactic", "corpus"], weight: 5, frontier: false }
+    ];
+
     // IDF (keyword rarity) map is computed lazily on first analysis.
     this._idf = null;
+  }
+
+  /**
+   * Detects known concepts in the text. Returns synthetic high-relevance
+   * domain matches, per-discipline boosts, related terms to inject into the
+   * normal matcher, and how many frontier concepts were found.
+   */
+  _applyConcepts(lowerText) {
+    const injectedDomains = [];
+    const disciplineBoost = {};
+    const conceptTerms = new Set();
+    let frontierHits = 0;
+
+    this.concepts.forEach(concept => {
+      const hit = concept.phrases.some(p => this._phraseInText(p, lowerText));
+      if (!hit) return;
+
+      if (concept.frontier) frontierHits++;
+      (concept.terms || []).forEach(t => conceptTerms.add(t.toLowerCase()));
+
+      // Pick the dominant discipline for the surfaced tag.
+      const entries = Object.entries(concept.disciplines);
+      const top = entries.slice().sort((a, b) => b[1] - a[1])[0];
+      const weighted = concept.weight * 1.4; // concepts are strong, confident signals
+
+      injectedDomains.push({
+        id: "concept_" + top[0].toLowerCase() + "_" + concept.weight,
+        name: concept.label,
+        discipline: top[0],
+        score: Math.round(Math.min(100, concept.weight * 10)),
+        weighted,
+        matchedKeywords: concept.phrases.filter(p => this._phraseInText(p, lowerText)),
+        weight: concept.weight,
+        isConcept: true
+      });
+
+      // Distribute the concept's weight across its disciplines.
+      entries.forEach(([disc, share]) => {
+        disciplineBoost[disc] = (disciplineBoost[disc] || 0) + concept.weight * share * 2.5;
+      });
+    });
+
+    return { injectedDomains, disciplineBoost, conceptTerms, frontierHits };
   }
 
   /**
@@ -30848,20 +30986,30 @@ class CosmicSDK {
     this._ensureIdf();
 
     const tokens = this._tokenize(text);
-    const tokenSet = new Set(tokens);
+    const tokenSet = new Set(tokens);            // original tokens — used for honest axis scoring
     const lowerText = (text || "").toLowerCase();
     const matchedDomains = [];
     const disciplineScores = {};
 
     Object.keys(this.disciplines).forEach(disc => { disciplineScores[disc] = 0; });
 
+    // --- 0. Concept layer: understand whole IDEAS before counting words -----
+    // e.g. "time travel" is recognised as PHYSICS (spacetime/relativity) rather
+    // than letting the stray word "time" match every "Real-Time" CS domain.
+    const concept = this._applyConcepts(lowerText);
+    // Inject concept-implied terms so the real domain DB also lights up the
+    // correct fields. Kept separate from `tokenSet` so it does NOT inflate the
+    // specificity axis (the user still has to write real detail to earn that).
+    const matchSet = new Set(tokens);
+    concept.conceptTerms.forEach(t => matchSet.add(t));
+
     // --- 1. Domain matching with rarity (IDF) weighting ---------------------
     // Each matched keyword contributes proportionally to how RARE it is across
     // the 2,500 domains. Generic words ("system", "studies") barely count;
-    // distinctive ones ("entanglement", "perovskite") count a lot. This kills
-    // the old score-inflation-by-common-words problem.
+    // distinctive ones ("entanglement", "perovskite") count a lot.
     this.domains.forEach(domain => {
       let evidence = 0;            // IDF-weighted strength of match for this domain
+      let hasDistinctive = false;  // did at least one rare/specific keyword match?
       const matchedKeywords = [];
 
       domain.keywords.forEach(keyword => {
@@ -30869,16 +31017,25 @@ class CosmicSDK {
           // Phrase match on word boundaries (fixes the old substring bug where
           // "ion" matched inside "station"/"million").
           if (this._phraseInText(keyword, lowerText)) {
-            evidence += 1.6 * this._kw(keyword);
+            const w = this._kw(keyword);
+            evidence += 1.6 * w;
+            if (w >= 0.3) hasDistinctive = true;
             matchedKeywords.push(keyword);
           }
-        } else if (tokenSet.has(keyword)) {
-          evidence += this._kw(keyword);
+        } else if (matchSet.has(keyword)) {
+          const w = this._kw(keyword);
+          evidence += w;
+          if (w >= 0.3) hasDistinctive = true;
           matchedKeywords.push(keyword);
         }
       });
 
       if (matchedKeywords.length > 0 && evidence > 0) {
+        // Discount domains whose ONLY evidence is common, generic words — this
+        // is what stopped "time" alone from lighting up every "Real-Time ..."
+        // Computer-Science domain for a physics idea.
+        if (!hasDistinctive) evidence *= 0.18;
+
         const intensity = Math.min(1.0, 0.35 + evidence * 0.35);
         const weighted = domain.baseWeight * intensity * (0.5 + evidence);
         const displayScore = Math.round(Math.min(100, domain.baseWeight * intensity * 12));
@@ -30897,10 +31054,27 @@ class CosmicSDK {
       }
     });
 
+    // Merge the concept hits: high-confidence synthetic domains + discipline
+    // boosts so the breakdown reflects ALL fields a concept spans (a
+    // time-travel laptop is Physics + Engineering + Computer, not just CS).
+    concept.injectedDomains.forEach(d => matchedDomains.push(d));
+    Object.entries(concept.disciplineBoost).forEach(([disc, v]) => {
+      disciplineScores[disc] = (disciplineScores[disc] || 0) + v;
+    });
+
     matchedDomains.sort((a, b) => b.weighted - a.weighted);
 
+    // For the surfaced tag list, lead with the clean concept labels (the
+    // engine's confident "what this really is" read), then the best matched
+    // real domains — so a time-travel idea shows "Spacetime, Relativity & Time
+    // Physics" first, not an obscure auto-generated domain name.
+    const displayDomains = [
+      ...matchedDomains.filter(d => d.isConcept),
+      ...matchedDomains.filter(d => !d.isConcept)
+    ];
+
     // --- 2. The five honest scoring axes (each 0..1) -----------------------
-    const axes = this._scoreAxes(text, tokens, tokenSet, matchedDomains, disciplineScores);
+    const axes = this._scoreAxes(text, tokens, tokenSet, matchedDomains, disciplineScores, concept.frontierHits);
 
     // Composite quality, then multiply by coherence so keyword-salad is
     // structurally incapable of scoring high no matter how many terms it spams.
@@ -30932,7 +31106,7 @@ class CosmicSDK {
       axes,                                // specificity / depth / breadth / novelty / coherence
       scale,                               // civIndex + neighbouring milestones + anchor multipliers
       disciplineBreakdown: this._formatDisciplineScores(disciplineScores),
-      matchedDomains: matchedDomains.slice(0, 15),
+      matchedDomains: displayDomains.slice(0, 15),
       totalMatchedCount: matchedDomains.length,
       timeline,
       motivationText
@@ -30975,7 +31149,7 @@ class CosmicSDK {
    * The heart of the "small smart engine": five interpretable axes that
    * measure MEANING and STRUCTURE rather than raw keyword counts.
    */
-  _scoreAxes(text, tokens, tokenSet, matchedDomains, disciplineScores) {
+  _scoreAxes(text, tokens, tokenSet, matchedDomains, disciplineScores, conceptFrontier = 0) {
     const totalTokens = tokens.length || 1;
     const uniqueTokens = tokenSet.size;
 
@@ -30995,8 +31169,10 @@ class CosmicSDK {
     const activeDisciplines = Object.values(disciplineScores).filter(v => v >= 2.5).length;
     const breadth = Math.min(1, activeDisciplines / 5);
 
-    // Novelty: presence of frontier / ambition-signalling concepts.
-    let frontierHits = 0;
+    // Novelty: presence of frontier / ambition-signalling concepts, counting
+    // both raw frontier terms and recognised frontier CONCEPTS (e.g. a
+    // "time travel" idea is ambitious even with no frontier buzzwords typed).
+    let frontierHits = conceptFrontier;
     tokenSet.forEach(t => { if (this.frontierTerms.has(t)) frontierHits++; });
     const novelty = Math.min(1, frontierHits / 5);
 
@@ -31008,9 +31184,13 @@ class CosmicSDK {
     let fw = 0;
     rawWords.forEach(w => { if (this.functionWords.has(w.replace(/[^\w]/g, ""))) fw++; });
     const fwRatio = rawWords.length ? fw / rawWords.length : 0;
+    // Real writing is mostly carried by SENTENCE STRUCTURE (function words like
+    // "a / that / with / by"), which a buzzword-spray simply does not have. We
+    // weight that signal heavily so a high-diversity salad of distinct frontier
+    // words can't sneak past — diversity alone is cheap to fake.
     const proseSignal = Math.min(1, fwRatio / 0.16);
     const coherence = Math.max(0.15, Math.min(1,
-      0.20 + 0.45 * lexicalDiversity + 0.35 * proseSignal));
+      0.15 + 0.25 * lexicalDiversity + 0.60 * proseSignal));
 
     const round = v => Math.round(v * 100);
     return {

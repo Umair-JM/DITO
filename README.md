@@ -28,6 +28,9 @@ Instead of naïvely counting keyword hits, the SDK scores **meaning and structur
 
 Keyword matching is **IDF-weighted** — rare, distinctive terms (e.g. *entanglement*, *perovskite*) count far more than generic ones (*system*, *studies*) — and phrase matching is **word-boundary safe** (so `"ion"` no longer matches inside *"station"*).
 
+### Concept understanding (the local "small brain")
+A compact, hand-curated **concept lexicon** lets the engine understand whole *ideas*, not just stray words. For example, *"a laptop that helps time travel"* is correctly read as **Physics** (spacetime / relativity), with Computing and Engineering as secondary disciplines — instead of the word "time" accidentally lighting up every *"Real-Time"* Computer-Science domain. Each concept maps to weighted disciplines and surfaces a clean, relevant domain tag. It's tiny to ship and runs entirely on-device.
+
 ### Multi-scale civilizational comparison
 Rather than a single "vs the 1950s transistor" number, DITO places your idea on a curated timeline of **16 real milestones in human capability** — from the **first stone tools (~3.3M BCE)** through fire, language, agriculture, the wheel, writing, printing, steam, electricity, the transistor, spaceflight, the web, the smartphone and generative AI, out to **projected** futures (solar-system automation, a Dyson swarm). Your contribution is shown *between* two milestones and compared, at once, against the stone axe, the wheel, the transistor and today's AI.
 
@@ -90,7 +93,7 @@ You can compile DITO into a native `.apk` (Android) or Xcode project (iOS) using
 - [`index.html`](index.html) — structural layout and SVG animated drop area.
 - [`index.css`](index.css) — sketchy layout styling, handwritten fonts, and physics drop-falling keyframes.
 - [`app.js`](app.js) — UI event binding, presets injector, falling-drop generation, the multi-scale/axes renderers, and the optional free-AI boost.
-- [`sdk/cosmic-sdk.js`](sdk/cosmic-sdk.js) — the offline evaluation engine: IDF-weighted domain matching, the five scoring axes, and the multi-scale civilizational timeline.
+- [`sdk/cosmic-sdk.js`](sdk/cosmic-sdk.js) — the offline evaluation engine: the concept lexicon, IDF-weighted domain matching, the five scoring axes, and the multi-scale civilizational timeline. **Usable standalone** — see [`sdk/README.md`](sdk/README.md).
 - [`generate_domains.js`](generate_domains.js) — script used to generate the knowledge-domain database in the SDK.
 - [`package.json`](package.json) — build scripts and dependencies.
 - [`capacitor.config.json`](capacitor.config.json) — Capacitor native-wrapper configuration.
