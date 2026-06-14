@@ -1,5 +1,11 @@
 # DITO — Drop In The Ocean 🌊
 
+### ▶️ **[Launch the live app →](https://umair-jm.github.io/DITO/)**
+
+No install, no sign-up — runs free in your browser on any device (phone or desktop).
+
+---
+
 DITO is a playful, minimalist, **offline-first** mobile web application and SDK. It evaluates your technical innovation entirely on-device, and can *optionally* call a **free, keyless public AI** for a richer second opinion when you're online.
 
 DITO evaluates technical innovations (up to 400 words) completely offline and locally on the device, measuring their contribution toward the ultimate benchmark: *humanity controlling the entire universe* — guided by **Manj**, the app's caveman-engineer mascot.
