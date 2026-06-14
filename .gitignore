@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Capacitor native targets (generated)
+/android/
+/ios/
+
+# Build output
+/dist/
+/www/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

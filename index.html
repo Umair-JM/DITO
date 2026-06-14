@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DITO - Drop In The Ocean</title>
+  <!-- Modern Premium Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <!-- CSS Styling System -->
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <!-- Background Space Canvas / Visual Effect -->
+  <div class="space-background">
+    <div class="stars"></div>
+    <div class="nebula-cyan"></div>
+    <div class="nebula-purple"></div>
+  </div>
+
+  <!-- 1. Cinematic Introduction Screen -->
+  <section id="intro-screen" class="active">
+    <div class="intro-container">
+      <div class="terminal-badge">SYS.INIT // HUMANITY_TIMELINE</div>
+      <h1 class="glow-text">DITO</h1>
+      <p class="intro-sub">Drop In The Ocean</p>
+      <p class="intro-desc">Tracing humanity's technological expansion from the 1950s base transistor to universal mastery.</p>
+      
+      <div class="timeline-preview">
+        <div class="preview-node">
+          <div class="node-year">1950</div>
+          <div class="node-dot"></div>
+          <div class="node-text">The Transistor Birth</div>
+        </div>
+        <div class="preview-line"></div>
+        <div class="preview-node">
+          <div class="node-year">1990</div>
+          <div class="node-dot"></div>
+          <div class="node-text">World Wide Web</div>
+        </div>
+        <div class="preview-line animate-pulse"></div>
+        <div class="preview-node active-glow">
+          <div class="node-year">2026</div>
+          <div class="node-dot"></div>
+          <div class="node-text">Cognitive Agents</div>
+        </div>
+        <div class="preview-line dashed"></div>
+        <div class="preview-node future">
+          <div class="node-year">∞</div>
+          <div class="node-dot"></div>
+          <div class="node-text">Cosmic Mastery</div>
+        </div>
+      </div>
+
+      <div class="intro-card glass-panel">
+        <h3>The Challenge</h3>
+        <p>Every tool, circuit, and algorithm we craft moves the needle of human capability. Paste your technical creation or summary (up to 400 words) to evaluate its contribution toward the ultimate benchmark: <strong>humanity controlling the universe.</strong></p>
+      </div>
+
+      <button id="btn-enter" class="glow-button">LAUNCH EVALUATOR</button>
+    </div>
+  </section>
+
+  <!-- 2. Main Dashboard Screen -->
+  <main id="dashboard-screen" class="hidden">
+    <header class="app-header">
+      <div class="brand">
+        <div class="pulse-dot"></div>
+        <span class="brand-title">DITO // Drop In The Ocean</span>
+      </div>
+      <div class="header-controls">
+        <button id="btn-settings" class="settings-btn" title="AI Settings">⚙️</button>
+        <span class="sdk-version">SDK v1.0.4 // LOCAL_ENGINE</span>
+      </div>
+    </header>
+
+    <div class="dashboard-grid">
+      
+      <!-- Left Panel: Input Form -->
+      <section class="control-panel glass-panel">
+        <div class="panel-header">
+          <h2>INNOVATION</h2>
+          <span class="panel-sub">Input up to 400 words summarizing your technical creation.</span>
+        </div>
+
+        <div class="preset-section">
+          <label class="form-label">TEST WITH PRESET SCHEMATICS:</label>
+          <div class="presets-row">
+            <button class="preset-btn" data-preset="dyson">Dyson Harvester</button>
+            <button class="preset-btn" data-preset="warp">Warp Stabilizer</button>
+            <button class="preset-btn" data-preset="bridge">Quantum Mind Bridge</button>
+            <button class="preset-btn" data-preset="weaver">Subatomic Weaver</button>
+            <button class="preset-btn" data-preset="decoder">Universal Decoder</button>
+          </div>
+        </div>
+
+        <div class="input-container">
+          <textarea id="summary-input" placeholder="Type or paste details of what you built (e.g., 'An autonomous Mars rover with solar-ion hybrid thrusters, advanced carbon-composite frame, and local neural network vision mapping...' )"></textarea>
+          <div class="counter-row">
+            <span class="word-limit-warning hidden" id="word-warning">⚠️ Limit exceeded</span>
+            <span class="counter-text"><span id="word-count">0</span> / 400 words</span>
+          </div>
+        </div>
+
+        <button id="btn-evaluate" class="action-button disabled" disabled>ANALYZE KNOWLEDGE IMPACT</button>
+      </section>
+
+      <!-- Right Panel: Results & Cosmic Impact -->
+      <section class="results-panel glass-panel">
+        
+        <!-- Welcome / Idle State -->
+        <div id="results-idle" class="results-state active">
+          <div class="idle-content">
+            <div class="radar-scan"></div>
+            <p class="idle-text">Awaiting specification. Input your summary on the left to measure cosmic impact.</p>
+          </div>
+        </div>
+
+        <!-- Active Analysis State -->
+        <div id="results-active" class="results-state hidden" style="position: relative;">
+          
+          <!-- Loading Overlay for API Calls -->
+          <div id="evaluation-loading" class="loading-overlay hidden">
+            <div class="radar-scan"></div>
+            <p class="loading-text">Manj is hitting rocks together to think... assessing impact...</p>
+          </div>
+          
+          <div class="results-row-main">
+            <!-- 1. Cosmic score -->
+            <div class="score-card glass-card">
+              <div class="card-title">COSMIC PROGRESS INDEX</div>
+              <div class="score-number" id="lbl-score">000</div>
+              <div class="score-range">/ 1000 SCALE</div>
+            </div>
+
+            <!-- 2. Kardashev Scale Progress -->
+            <div class="gauge-card glass-card">
+              <div class="card-title">UNIVERSE CONTROL MATRIX</div>
+              <div class="gauge-container">
+                <svg viewBox="0 0 100 100" class="gauge-svg">
+                  <circle cx="50" cy="50" r="40" class="gauge-bg"></circle>
+                  <circle cx="50" cy="50" r="40" class="gauge-progress" id="gauge-bar"></circle>
+                </svg>
+                <div class="gauge-text">
+                  <span id="lbl-control-pct">0.00</span>%
+                  <small>Kardashev III</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Multi-Scale Placement Readout -->
+          <div class="scale-card glass-card">
+            <div class="card-title">WHERE YOUR DROP LANDS IN HUMAN HISTORY</div>
+            <p class="scale-between">
+              Between <strong id="lbl-scale-below">—</strong> and <strong id="lbl-scale-above">—</strong>
+            </p>
+            <div class="anchor-row" id="anchor-row">
+              <div class="anchor-chip"><span class="anchor-mult" id="anc-stone">—</span><span class="anchor-lbl">× Stone Axe</span></div>
+              <div class="anchor-chip"><span class="anchor-mult" id="anc-wheel">—</span><span class="anchor-lbl">× The Wheel</span></div>
+              <div class="anchor-chip"><span class="anchor-mult" id="anc-transistor">—</span><span class="anchor-lbl">× Transistor</span></div>
+              <div class="anchor-chip"><span class="anchor-mult" id="anc-genai">—</span><span class="anchor-lbl">× Today's AI</span></div>
+            </div>
+            <p class="scale-note">Multipliers are against an illustrative civilizational-capability scale — a single idea is, honestly, a drop in the ocean. <span id="lbl-matched-count">0</span> knowledge domains matched.</p>
+          </div>
+
+          <!-- 3b. Honest Signal Breakdown (what the score is actually made of) -->
+          <div class="axes-section">
+            <h3 class="section-title">HOW THIS SCORE WAS EARNED</h3>
+            <div class="axes-grid" id="axes-container">
+              <!-- Dynamically populated: specificity / depth / breadth / novelty / coherence -->
+            </div>
+          </div>
+
+          <!-- Manj's Motivational Scroll -->
+          <div class="motivation-card sketch-border" style="background-color: var(--sand); padding: 1rem; margin-bottom: 1.5rem; text-align: center;">
+            <div class="card-title" style="font-size: 0.8rem; font-weight: bold; border-bottom: 2px dashed var(--charcoal); padding-bottom: 0.2rem; margin-bottom: 0.5rem;">MANJ'S CAVE WISDOM</div>
+            <p id="lbl-motivation" style="font-family: var(--font-hand); font-size: 1.35rem; font-weight: bold; line-height: 1.3;"></p>
+          </div>
+
+          <!-- 4. Disciplines Grid Breakdown -->
+          <div class="discipline-section">
+            <h3 class="section-title">CORE DISCIPLINE IMPACTS</h3>
+            <div class="discipline-grid" id="discipline-container">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- 5. Chronological Transformation Timeline -->
+          <div class="timeline-section">
+            <h3 class="section-title">KNOWLEDGE TRANSFORMATION TIMELINE</h3>
+            <p class="section-sub">Where this innovation places humanity on the index timeline compared to the 1950s baseline.</p>
+            <div class="vertical-timeline" id="timeline-container">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- 6. Tag Cloud of Matched Knowledge Domains -->
+          <div class="tags-section">
+            <h3 class="section-title">COSMIC DOMAINS RELEVANCY</h3>
+            <div class="tags-container" id="tags-container">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- 3. AI Settings Modal -->
+  <div id="settings-modal" class="modal-overlay hidden">
+    <div class="modal-content sketch-border">
+      <div class="modal-header">
+        <h3>MANJ'S COGNITIVE SETTINGS</h3>
+        <button id="btn-close-settings" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="settings-desc">DITO runs a real evaluation <strong>fully offline</strong> on your device — no account, no API key, no data leaves your phone. You can optionally let a <strong>free public AI</strong> add a richer second opinion when you're online.</p>
+
+        <div class="form-group">
+          <label class="form-label" for="online-toggle">FREE ONLINE AI BOOST:</label>
+          <div class="toggle-container">
+            <input type="checkbox" id="online-toggle" class="toggle-checkbox">
+            <label for="online-toggle" class="toggle-label"></label>
+          </div>
+        </div>
+
+        <div class="form-group" id="online-info-group">
+          <small class="form-help">
+            When ON, your summary is sent to <a href="https://pollinations.ai" target="_blank" rel="noopener">Pollinations.ai</a> — a free, keyless, open public AI service that anyone can use. No sign-up and no API keys are involved (none of the app author's keys either). If it's slow or unavailable, DITO silently falls back to the offline engine.
+            <br><br>
+            <strong>Privacy:</strong> with the boost OFF, nothing ever leaves your device. With it ON, only the text you type is sent to that third-party service for scoring.
+          </small>
+        </div>
+
+        <button id="btn-save-settings" class="glow-button" style="margin-top: 1rem;">SAVE SETTINGS</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SDK Script Core -->
+  <script src="sdk/cosmic-sdk.js"></script>
+  <!-- Application Controller -->
+  <script src="app.js"></script>
+</body>
+</html>

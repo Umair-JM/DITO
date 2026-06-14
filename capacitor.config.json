@@ -1,0 +1,6 @@
+{
+  "appId": "dito.ocean.app",
+  "appName": "DITO",
+  "webDir": ".",
+  "bundledWebRuntime": false
+}
